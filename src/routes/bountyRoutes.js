@@ -34,6 +34,9 @@ router.use(authMiddleware.authenticate);
 // Authenticated user routes
 router.get('/user/my-bounties', bountyController.getMyBounties);
 
+// Get completed bounties for user
+router.get('/completed', bountyController.getCompletedBounties);
+
 // Join a bounty
 router.post('/:id/join', 
   validateMiddleware(bountyParamsSchema, 'params'),
@@ -41,8 +44,11 @@ router.post('/:id/join',
 );
 
 // Submit to a bounty
+const { upload, handleUploadErrors } = require('../middlewares/uploadMiddleware');
 router.post('/:id/submit', 
   validateMiddleware(bountyParamsSchema, 'params'),
+  upload.array('attachments', 5),
+  handleUploadErrors,
   validateMiddleware(submitToBountySchema), 
   bountyController.submitToBounty
 );

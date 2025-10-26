@@ -12,9 +12,12 @@ if (!MONGO_URI) {
   process.exit(1);
 }
 
-let app;
+let app, server, wsService;
 try {
-  app = require('./src/app');
+  const appModule = require('./src/app');
+  app = appModule.app;
+  server = appModule.server;
+  wsService = appModule.wsService;
   console.log("✅ App loaded successfully");
 } catch (err) {
   console.error("❌ Error loading app.js:", err);
@@ -37,8 +40,8 @@ const startServer = async () => {
     await mongoose.connect(MONGO_URI);
     logger.info('✅ Connected to MongoDB');
 
-    app.listen(PORT, () => {
-      logger.info(`🚀 Server running on port ${PORT}`);
+    server.listen(PORT, () => {
+      logger.info(`🚀 Server running on port ${PORT} with WebSocket support`);
     });
   } catch (error) {
     logger.error('❌ Failed to start server', { error: error.message });

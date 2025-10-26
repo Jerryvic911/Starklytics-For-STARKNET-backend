@@ -15,6 +15,9 @@ const validateEnv = require('./utils/validateEnv');
 
 const authRoutes = require('./routes/authRoutes');
 const bountyRoutes = require('./routes/bountyRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const { router: dashboardRoutes } = require('./routes/dashboardRoutes');
+const { router: queryRoutes } = require('./routes/queryRoutes');
 
 // Validate environment variables before startup
 validateEnv();
@@ -144,6 +147,9 @@ app.get('/health', (req, res) => {
 ------------------------- */
 app.use('/api/auth', authRoutes);
 app.use('/api/bounties', bountyRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/dashboards', dashboardRoutes);
+app.use('/api/queries', queryRoutes);
 
 /* ------------------------
    404 Handler
