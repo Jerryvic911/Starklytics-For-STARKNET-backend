@@ -110,8 +110,12 @@ const sendErrorProd = (err, req, res) => {
 
 // Global error handling middleware
 const errorMiddleware = (err, req, res, next) => {
+  // If no error object, skip this middleware
+  if (!err) return next();
+
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
+
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, req, res);
