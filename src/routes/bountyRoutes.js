@@ -35,7 +35,7 @@ router.use(authMiddleware.authenticate);
 router.get('/user/my-bounties', bountyController.getMyBounties);
 
 // Get completed bounties for user
-router.get('/completed', bountyController.getCompletedBounties);
+//router.get('/completed', bountyController.getCompletedBounties);
 
 // Join a bounty
 router.post('/:id/join', 
