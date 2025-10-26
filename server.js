@@ -1,51 +1,25 @@
-const mongoose = require('mongoose');
-const logger = require('./src/utils/logger');
-require('dotenv').config({ debug: false });
-
+require('dotenv').config();
 console.log("✅ Starting server.js...");
+
+const mongoose = require('mongoose');
+const { app, server } = require('./src/app'); // adjust path if app.js is in src/
+const logger = require('./src/utils/logger');
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
-if (!MONGO_URI) {
-  console.error('❌ MONGO_URI is not defined. Set the MONGO_URI environment variable before starting the server.');
-  process.exit(1);
-}
+console.log('PORT:', PORT);
+console.log('MONGO_URI:', MONGO_URI ? 'Loaded' : 'Missing');
 
-let app, server, wsService;
-try {
-  const appModule = require('./src/app');
-  app = appModule.app;
-  server = appModule.server;
-  wsService = appModule.wsService;
-  console.log("✅ App loaded successfully");
-} catch (err) {
-  console.error("❌ Error loading app.js:", err);
-  process.exit(1); // Exit if app fails to load
-}
-
-// Define root route (optional)
-if (app) {
-  app.get('/', (req, res) => {
-    res.status(200).json({
-      success: true,
-      message: 'Welcome to Starklytics API'
-    });
-  });
-}
-
-const startServer = async () => {
-  try {
-    console.log("🔗 Connecting to MongoDB...");
-    await mongoose.connect(MONGO_URI);
+// Connect to MongoDB and start the server
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
     logger.info('✅ Connected to MongoDB');
-
     server.listen(PORT, () => {
-      logger.info(`🚀 Server running on port ${PORT} with WebSocket support`);
+      logger.info(`🚀 Server running on port ${PORT}`);
     });
-  } catch (error) {
-    logger.error('❌ Failed to start server', { error: error.message });
-  }
-};
-
-startServer();
+  })
+  .catch((err) => {
+    logger.error('❌ MongoDB connection error:', err);
+  });
