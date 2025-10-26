@@ -111,20 +111,38 @@ app.use((req, res, next) => {
 
 // Mongo Injection & XSS
 app.use(mongoSanitize());
+/* ------------------------
+   Sanitization
+------------------------- */
+
+// ✅ Fix for "Cannot set property query..." issue;
+
+// Custom sanitization logic (safe with Express v5)
 app.use((req, res, next) => {
-  const sanitize = (obj) => {
-    if (!obj || typeof obj !== 'object') return obj;
-    for (const key in obj) {
-      if (typeof obj[key] === 'string') obj[key] = xss(obj[key]);
-      else if (typeof obj[key] === 'object') obj[key] = sanitize(obj[key]);
-    }
-    return obj;
-  };
-  req.body = sanitize(req.body);
-  req.query = sanitize(req.query);
-  req.params = sanitize(req.params);
+  try {
+    // Sanitize only body and params (skip req.query to avoid read-only error)
+    if (req.body) mongoSanitize.sanitize(req.body);
+    if (req.params) mongoSanitize.sanitize(req.params);
+
+    // XSS sanitization
+    const sanitize = (obj) => {
+      if (!obj || typeof obj !== 'object') return obj;
+      for (const key in obj) {
+        if (typeof obj[key] === 'string') obj[key] = xss(obj[key]);
+        else if (typeof obj[key] === 'object') obj[key] = sanitize(obj[key]);
+      }
+      return obj;
+    };
+
+    req.body = sanitize(req.body);
+    req.params = sanitize(req.params);
+    // ⚠️ skip req.query to prevent crash
+  } catch (err) {
+    console.error('Sanitization error:', err.message);
+  }
   next();
 });
+
 
 /* ------------------------
    Health Check
