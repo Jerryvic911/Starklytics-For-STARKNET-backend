@@ -110,7 +110,7 @@ app.use((req, res, next) => {
 ------------------------- */
 
 // Mongo Injection & XSS
-app.use(mongoSanitize());
+//app.use(mongoSanitize());
 /* ------------------------
    Sanitization
 ------------------------- */
